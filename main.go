@@ -8,6 +8,7 @@ import (
 )
 
 func main() {
+	c := config{next: url, previous: ""}
 	commands := getCommandsMap()
 
 	scanner := bufio.NewScanner(os.Stdin)
@@ -20,9 +21,13 @@ func main() {
 		command := strings.TrimSpace(userInput)
 		switch command {
 		case "help":
-			commands["help"].callback()
+			commands[command].callback(&c)
 		case "exit":
-			commands["exit"].callback()
+			commands[command].callback(&c)
+		case "map":
+			commands[command].callback(&c)
+		case "mapb":
+			commands[command].callback(&c)
 		default:
 			continue
 		}
