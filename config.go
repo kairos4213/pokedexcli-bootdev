@@ -1,8 +1,9 @@
 package main
 
-const url = "https://pokeapi.co/api/v2/location-area/"
+import "github.com/kairos4213/pokedexcli-bootdev/internal/pokeapi"
 
 type config struct {
-	next     string
-	previous string
+	pokeapiClient   pokeapi.Client
+	nextLocAreasURL *string
+	prevLocAreasURL *string
 }

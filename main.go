@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/kairos4213/pokedexcli-bootdev/internal/pokeapi"
 )
 
 func main() {
-	c := config{next: url, previous: ""}
-	commands := getCommandsMap()
+	cfg := config{
+		pokeapiClient: pokeapi.NewClient(),
+	}
 
 	scanner := bufio.NewScanner(os.Stdin)
 	for {
@@ -17,19 +20,21 @@ func main() {
 
 		scanner.Scan()
 		userInput := scanner.Text()
-
-		command := strings.TrimSpace(userInput)
-		switch command {
-		case "help":
-			commands[command].callback(&c)
-		case "exit":
-			commands[command].callback(&c)
-		case "map":
-			commands[command].callback(&c)
-		case "mapb":
-			commands[command].callback(&c)
-		default:
+		userInput = strings.TrimSpace(userInput)
+		if len(userInput) == 0 {
 			continue
+		}
+
+		commands := getCommandsMap()
+		command, ok := commands[userInput]
+		if !ok {
+			fmt.Println("invalid command")
+			continue
+		}
+
+		err := command.callback(&cfg)
+		if err != nil {
+			fmt.Println(err)
 		}
 	}
 }
