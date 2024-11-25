@@ -24,11 +24,11 @@ func NewCache(interval time.Duration) Cache {
 	return cache
 }
 
-func (ca *Cache) Add(key string, val []byte) {
+func (ca *Cache) Add(key string, value []byte) {
 	ca.mu.Lock()
 	defer ca.mu.Unlock()
 
-	ca.entries[key] = cacheEntry{createdAt: time.Now(), val: val}
+	ca.entries[key] = cacheEntry{createdAt: time.Now(), val: value}
 }
 
 func (ca *Cache) Get(key string) ([]byte, bool) {
@@ -44,16 +44,19 @@ func (ca *Cache) Get(key string) ([]byte, bool) {
 }
 
 func (ca *Cache) reapLoop(interval time.Duration) {
-	defer ca.mu.Unlock()
-	
 	ticker := time.NewTicker(interval)
 	for range ticker.C {
-		ca.mu.Lock()
-		expiryTime := time.Now().Add(-interval)
-		for key, entry := range ca.entries {
-			if entry.createdAt.Before(expiryTime) {
-				delete(ca.entries, key)
-			}
+		ca.reap(interval)
+	}
+}
+
+func (ca *Cache) reap(interval time.Duration) {
+	ca.mu.Lock()
+	defer ca.mu.Unlock()
+	expiryTime := time.Now().Add(-interval)
+	for key, entry := range ca.entries {
+		if entry.createdAt.Before(expiryTime) {
+			delete(ca.entries, key)
 		}
 	}
 }
