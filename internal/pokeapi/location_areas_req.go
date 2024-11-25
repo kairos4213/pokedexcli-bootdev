@@ -14,8 +14,7 @@ func (c *Client) GetLocationAreas(url *string) (LocationAreas, error) {
 		locAreasEndPnt = *url
 	}
 
-	cacheData, ok := c.cache.Get(locAreasEndPnt)
-	if ok {
+	if cacheData, ok := c.cache.Get(locAreasEndPnt); ok {
 		fmt.Println("cache result")
 		var locationAreas LocationAreas
 		if err := json.Unmarshal(cacheData, &locationAreas); err != nil {
@@ -51,6 +50,5 @@ func (c *Client) GetLocationAreas(url *string) (LocationAreas, error) {
 	}
 
 	c.cache.Add(locAreasEndPnt, data)
-
 	return locationAreas, nil
 }

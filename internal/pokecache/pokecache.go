@@ -7,7 +7,7 @@ import (
 
 type Cache struct {
 	entries map[string]cacheEntry
-	mu      sync.RWMutex
+	mu      *sync.RWMutex
 }
 
 type cacheEntry struct {
@@ -18,6 +18,7 @@ type cacheEntry struct {
 func NewCache(interval time.Duration) Cache {
 	cache := Cache{
 		entries: make(map[string]cacheEntry),
+		mu:      &sync.RWMutex{},
 	}
 	go cache.reapLoop(interval)
 	return cache
@@ -43,11 +44,11 @@ func (ca *Cache) Get(key string) ([]byte, bool) {
 }
 
 func (ca *Cache) reapLoop(interval time.Duration) {
-	ca.mu.Lock()
 	defer ca.mu.Unlock()
-
+	
 	ticker := time.NewTicker(interval)
 	for range ticker.C {
+		ca.mu.Lock()
 		expiryTime := time.Now().Add(-interval)
 		for key, entry := range ca.entries {
 			if entry.createdAt.Before(expiryTime) {
