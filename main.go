@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/kairos4213/pokedexcli-bootdev/internal/pokeapi"
 )
 
 func main() {
 	cfg := config{
-		pokeapiClient: pokeapi.NewClient(),
+		pokeapiClient: pokeapi.NewClient(time.Hour),
 	}
 
 	scanner := bufio.NewScanner(os.Stdin)
